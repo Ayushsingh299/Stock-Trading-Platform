@@ -1,0 +1,45 @@
+{
+  "name": "protrade-trading-platform",
+  "version": "1.0.0",
+  "description": "Professional Web-Based Stock Trading Platform - Full Stack",
+  "main": "backend/src/server.js",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm install && npm run dev",
+    "dev:frontend": "cd frontend && npm install && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ..",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run build && npm run preview",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "clean": "rm -rf backend/node_modules frontend/node_modules node_modules"
+  },
+  "keywords": [
+    "stock-trading",
+    "trading-platform",
+    "nodejs",
+    "react",
+    "postgresql",
+    "web-app",
+    "finance"
+  ],
+  "author": "ProTrade Development Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/trading-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/trading-platform/issues"
+  },
+  "homepage": "https://github.com/yourusername/trading-platform#readme"
+}
