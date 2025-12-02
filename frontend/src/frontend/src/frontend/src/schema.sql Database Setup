@@ -1,0 +1,338 @@
+-- ============================================
+-- PROTRADE STOCK TRADING PLATFORM
+-- PostgreSQL Database Schema
+-- Version: 1.0.0
+-- ============================================
+
+-- Create database (run separately first)
+-- CREATE DATABASE trading_db;
+-- \c trading_db;
+
+-- Then run all SQL below:
+
+-- ============================================
+-- DROP EXISTING TABLES (Optional - for fresh setup)
+-- ============================================
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS positions CASCADE;
+DROP TABLE IF EXISTS portfolios CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- ============================================
+-- USERS TABLE - Store user accounts
+-- ============================================
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT valid_email CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$')
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_created_at ON users(created_at);
+
+COMMENT ON TABLE users IS 'Stores user account information with secure password hashing';
+COMMENT ON COLUMN users.email IS 'Unique email address for login';
+COMMENT ON COLUMN users.password_hash IS 'Bcrypt hashed password (never plain text)';
+
+-- ============================================
+-- PORTFOLIOS TABLE - User cash and investments
+-- ============================================
+CREATE TABLE portfolios (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  cash NUMERIC(18, 2) NOT NULL DEFAULT 100000.00,
+  total_invested NUMERIC(18, 2) NOT NULL DEFAULT 0.00,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT positive_cash CHECK (cash >= 0)
+);
+
+CREATE INDEX idx_portfolios_user_id ON portfolios(user_id);
+CREATE INDEX idx_portfolios_created_at ON portfolios(created_at);
+
+COMMENT ON TABLE portfolios IS 'Tracks user cash balance and investment totals';
+COMMENT ON COLUMN portfolios.cash IS 'Available cash for trading (starting 100,000)';
+COMMENT ON COLUMN portfolios.total_invested IS 'Total amount invested in positions';
+
+-- ============================================
+-- POSITIONS TABLE - Active stock holdings
+-- ============================================
+CREATE TABLE positions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  symbol VARCHAR(20) NOT NULL,
+  quantity NUMERIC(18, 4) NOT NULL,
+  avg_price NUMERIC(18, 4) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_user_symbol UNIQUE(user_id, symbol),
+  CONSTRAINT positive_quantity CHECK (quantity > 0),
+  CONSTRAINT positive_price CHECK (avg_price > 0)
+);
+
+CREATE INDEX idx_positions_user_id ON positions(user_id);
+CREATE INDEX idx_positions_symbol ON positions(symbol);
+CREATE INDEX idx_positions_created_at ON positions(created_at);
+
+COMMENT ON TABLE positions IS 'Active stock positions held by users';
+COMMENT ON COLUMN positions.symbol IS 'Stock symbol (e.g., INFY, TCS)';
+COMMENT ON COLUMN positions.quantity IS 'Number of shares held';
+COMMENT ON COLUMN positions.avg_price IS 'Average purchase price per share';
+
+-- ============================================
+-- ORDERS TABLE - Trade execution history
+-- ============================================
+CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  symbol VARCHAR(20) NOT NULL,
+  side VARCHAR(4) NOT NULL,
+  quantity NUMERIC(18, 4) NOT NULL,
+  price NUMERIC(18, 4) NOT NULL,
+  type VARCHAR(10) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'FILLED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT valid_side CHECK (side IN ('BUY', 'SELL')),
+  CONSTRAINT valid_type CHECK (type IN ('MARKET', 'LIMIT')),
+  CONSTRAINT valid_status CHECK (status IN ('PENDING', 'FILLED', 'CANCELLED')),
+  CONSTRAINT positive_quantity CHECK (quantity > 0),
+  CONSTRAINT positive_price CHECK (price > 0)
+);
+
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_symbol ON orders(symbol);
+CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
+CREATE INDEX idx_orders_status ON orders(status);
+
+COMMENT ON TABLE orders IS 'Complete trading history for all executed orders';
+COMMENT ON COLUMN orders.side IS 'Transaction type: BUY or SELL';
+COMMENT ON COLUMN orders.type IS 'Order type: MARKET or LIMIT';
+COMMENT ON COLUMN orders.status IS 'Execution status: PENDING, FILLED, or CANCELLED';
+
+-- ============================================
+-- INSERT DEMO USER
+-- ============================================
+-- Demo credentials for testing:
+-- Email: demo@user.com
+-- Password: password123
+-- Bcrypt Hash: $2a$10$K5U6L6v2YcO9XWUJmBXaFeqXyQhGZ5aD0qI6YpMPwT9qvC0W4Hh5a
+
+INSERT INTO users (email, password_hash) 
+VALUES ('demo@user.com', '$2a$10$K5U6L6v2YcO9XWUJmBXaFeqXyQhGZ5aD0qI6YpMPwT9qvC0W4Hh5a')
+ON CONFLICT (email) DO NOTHING;
+
+-- Create portfolio for demo user
+INSERT INTO portfolios (user_id, cash, total_invested) 
+VALUES (1, 100000.00, 0.00)
+ON CONFLICT (user_id) DO NOTHING;
+
+-- ============================================
+-- VIEWS - For analytics and reporting
+-- ============================================
+
+-- Portfolio Summary View
+CREATE OR REPLACE VIEW portfolio_summary AS
+SELECT 
+  u.id AS user_id,
+  u.email,
+  p.cash,
+  COALESCE(SUM(pos.quantity * pos.avg_price), 0)::NUMERIC(18,2) AS total_invested,
+  (p.cash + COALESCE(SUM(pos.quantity * pos.avg_price), 0))::NUMERIC(18,2) AS total_value,
+  COUNT(DISTINCT pos.id) AS num_positions,
+  p.created_at,
+  p.updated_at
+FROM users u
+LEFT JOIN portfolios p ON u.id = p.user_id
+LEFT JOIN positions pos ON u.id = pos.user_id
+GROUP BY u.id, u.email, p.cash, p.created_at, p.updated_at;
+
+COMMENT ON VIEW portfolio_summary IS 'Aggregated portfolio data for all users';
+
+-- Order Summary by Symbol
+CREATE OR REPLACE VIEW order_summary AS
+SELECT 
+  user_id,
+  symbol,
+  side,
+  COUNT(*) AS num_orders,
+  SUM(quantity)::NUMERIC(18,4) AS total_quantity,
+  AVG(price)::NUMERIC(18,4) AS avg_execution_price,
+  SUM(quantity * price)::NUMERIC(18,2) AS total_volume,
+  MAX(created_at) AS last_trade_date
+FROM orders
+WHERE status = 'FILLED'
+GROUP BY user_id, symbol, side;
+
+COMMENT ON VIEW order_summary IS 'Summary of executed trades by symbol and side';
+
+-- User Trading Activity
+CREATE OR REPLACE VIEW user_trading_activity AS
+SELECT 
+  u.id AS user_id,
+  u.email,
+  COUNT(DISTINCT o.id) AS total_trades,
+  COUNT(DISTINCT CASE WHEN o.side = 'BUY' THEN o.id END) AS buy_orders,
+  COUNT(DISTINCT CASE WHEN o.side = 'SELL' THEN o.id END) AS sell_orders,
+  SUM(o.quantity * o.price)::NUMERIC(18,2) AS total_volume_traded,
+  MAX(o.created_at) AS last_trade_date,
+  COUNT(DISTINCT o.symbol) AS unique_symbols_traded
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'FILLED'
+GROUP BY u.id, u.email;
+
+COMMENT ON VIEW user_trading_activity IS 'User trading statistics and activity metrics';
+
+-- ============================================
+-- STORED PROCEDURES & FUNCTIONS
+-- ============================================
+
+-- Function to calculate unrealized P&L
+CREATE OR REPLACE FUNCTION get_position_pnl(
+  p_user_id INTEGER,
+  p_symbol VARCHAR,
+  p_current_price NUMERIC
+)
+RETURNS TABLE (
+  symbol VARCHAR,
+  quantity NUMERIC,
+  avg_price NUMERIC,
+  current_price NUMERIC,
+  unrealized_pnl NUMERIC,
+  unrealized_pnl_percent NUMERIC
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    pos.symbol,
+    pos.quantity,
+    pos.avg_price,
+    p_current_price,
+    ((p_current_price - pos.avg_price) * pos.quantity)::NUMERIC(18,4),
+    (((p_current_price - pos.avg_price) / pos.avg_price) * 100)::NUMERIC(8,2)
+  FROM positions pos
+  WHERE pos.user_id = p_user_id 
+    AND pos.symbol = p_symbol;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION get_position_pnl IS 'Calculate unrealized P&L for a position';
+
+-- Function to get user portfolio stats
+CREATE OR REPLACE FUNCTION get_portfolio_stats(p_user_id INTEGER)
+RETURNS TABLE (
+  user_email VARCHAR,
+  cash NUMERIC,
+  total_invested NUMERIC,
+  total_value NUMERIC,
+  num_positions BIGINT,
+  num_trades BIGINT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    u.email,
+    p.cash,
+    COALESCE(SUM(pos.quantity * pos.avg_price), 0)::NUMERIC(18,2),
+    (p.cash + COALESCE(SUM(pos.quantity * pos.avg_price), 0))::NUMERIC(18,2),
+    COUNT(DISTINCT pos.id),
+    COUNT(DISTINCT o.id)
+  FROM users u
+  LEFT JOIN portfolios p ON u.id = p.user_id
+  LEFT JOIN positions pos ON u.id = pos.user_id
+  LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'FILLED'
+  WHERE u.id = p_user_id
+  GROUP BY u.email, p.cash;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION get_portfolio_stats IS 'Get comprehensive portfolio statistics';
+
+-- ============================================
+-- TRIGGERS (Optional - for audit logging)
+-- ============================================
+
+-- Update timestamp on portfolio change
+CREATE OR REPLACE FUNCTION update_portfolio_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_portfolio_updated_at
+BEFORE UPDATE ON portfolios
+FOR EACH ROW
+EXECUTE FUNCTION update_portfolio_timestamp();
+
+-- Update timestamp on position change
+CREATE OR REPLACE FUNCTION update_position_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_position_updated_at
+BEFORE UPDATE ON positions
+FOR EACH ROW
+EXECUTE FUNCTION update_position_timestamp();
+
+-- Update timestamp on order change
+CREATE OR REPLACE FUNCTION update_order_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_order_updated_at
+BEFORE UPDATE ON orders
+FOR EACH ROW
+EXECUTE FUNCTION update_order_timestamp();
+
+-- ============================================
+-- SAMPLE QUERIES FOR REFERENCE
+-- ============================================
+
+/*
+
+-- 1. Get user portfolio summary
+SELECT * FROM portfolio_summary WHERE user_id = 1;
+
+-- 2. Get order history
+SELECT * FROM order_summary WHERE user_id = 1 ORDER BY last_trade_date DESC;
+
+-- 3. Get user trading activity
+SELECT * FROM user_trading_activity WHERE user_id = 1;
+
+-- 4. Calculate P&L for specific position
+SELECT * FROM get_position_pnl(1, 'INFY', 2000.00);
+
+-- 5. Get comprehensive portfolio stats
+SELECT * FROM get_portfolio_stats(1);
+
+-- 6. Get all positions
+SELECT symbol, quantity, avg_price, 
+       (quantity * avg_price) AS position_value
+FROM positions 
+WHERE user_id = 1 
+ORDER BY symbol;
+
+-- 7. Get recent trades
+SELECT symbol, side, quantity, price, status, created_at 
+FROM orders 
+WHERE user_id = 1 
+ORDER BY created_at DESC 
+LIMIT 20;
+
+-- 8. Get trading volume by symbol
+SELECT symbol, 
+       SUM(CASE WHEN side = 'BUY' THEN quantity ELSE 0 END) AS buy_volume,
+       SUM(CASE WHEN side = '
