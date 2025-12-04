@@ -448,10 +448,12 @@ Contributions are welcome! Follow these steps:
 
 ### Portfolio Management
 ![Portfolio](docs/images/portfolio.png)
+
 *Add, update, and track your stock holdings with live P&L*
 
 ### Stock Analytics
 ![Analytics](docs/images/analytics.png)
+
 *Interactive charts showing portfolio trends and asset allocation*
 
 ---
@@ -534,40 +536,16 @@ text
 
 ---
 
-## 👥 Contributors
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/Ayush299">
-        <img src="https://github.com/yourusername.png" width="100px;" alt="Your Name"/>
-        <br />
-        <sub><b>Your Name</b></sub>
-      </a>
-      <br />
-      <a href="#" title="Code">💻</a>
-      <a href="#" title="Documentation">📖</a>
-      <a href="#" title="Design">🎨</a>
-    </td>
-    <!-- Add more contributors here -->
-  </tr>
-</table>
-
-**Want to contribute?** See [Contributing Guidelines](#contributing)
-
----
 
 ## 📞 Contact & Support
 
-- **Author:** Your Name
-- **Email:** your.email@example.com
-- **GitHub:** [@yourusername](https://github.com/yourusername)
+- **Author:** Ayush Singh
+- **GitHub:** [@Ayushsingh299](https://github.com/Ayushsingh299/Stock-Trading-Platform.git)
 - **LinkedIn:** [Your Profile](https://linkedin.com/in/yourprofile)
-- **Portfolio:** [yourwebsite.com](https://yourwebsite.com)
 
-**Found a bug?** [Report it](https://github.com/yourusername/trading-platform/issues/new)
+**Found a bug?** [Report it](https://github.com/Ayushsingh299/Stock-Trading-Platform/issues/new)
 
-**Need help?** [Start a discussion](https://github.com/yourusername/trading-platform/discussions)
+**Need help?** [Start a discussion](https://github.com/Ayushsingh299/Stock-Trading-Platform/discussions)
 
 ---
 
@@ -583,7 +561,7 @@ text
 
 ## ⭐ Show Your Support
 
-If this project helped you, please give it a ⭐ on [GitHub](https://github.com/yourusername/trading-platform)!
+If this project helped you, please give it a ⭐ on [GitHub](https://github.com/Ayushsingh299/Stock-Trading-Platform.git)!
 
 ---
 
