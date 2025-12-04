@@ -1,4 +1,4 @@
-# 📈 AI-Powered Trading Platform
+# 📈 Stock Trading Platform
 
 > A modern, full-stack trading application combining real-time market data, intelligent portfolio management, and advanced analytics for data-driven trading decisions.
 
