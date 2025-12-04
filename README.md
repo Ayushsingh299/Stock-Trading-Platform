@@ -8,7 +8,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-336791?style=for-the-badge&logo=postgresql)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**Enterprise-grade stock trading simulator with real-time market data, JWT authentication, and ACID-compliant order execution.**
+**A full-stack stock trading simulator built with React, Node.js, and PostgreSQL featuring real-time market data, secure authentication, and portfolio management.**
 
 [🚀 Quick Start](#-quick-start) • [📊 Features](#-features) • [📸 Screenshots](#-screenshots) • [🛠 Tech](#-tech-stack) • [📡 API](#-api-reference) • [🌐 Deploy](#-deployment)
 
@@ -16,18 +16,26 @@
 
 ---
 
-## 📋 Quick Navigation
+## 📑 Table of Contents
 
-| Section | Purpose |
-|---------|---------|
-| [Overview](#-overview) | What is ProTrade |
-| [Features](#-features) | 20+ key capabilities |
-| [Screenshots](#-screenshots) | Visual walkthrough |
-| [Architecture](#-architecture) | System design |
-| [Installation](#-installation) | Setup guide |
-| [API](#-api-reference) | Endpoint documentation |
-| [Deployment](#-deployment) | Production setup |
-| [Troubleshooting](#-troubleshooting) | Common issues |
+- [🎯 Overview](#-overview)
+- [✨ Features](#-features)
+- [📸 Screenshots](#-screenshots)
+- [🛠 Tech Stack](#-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [📦 Prerequisites](#-prerequisites)
+- [⚙️ Installation](#️-installation-windows-11--macos--linux)
+- [🚀 Quick Start](#-quick-start)
+- [📡 API Reference](#-api-reference)
+- [🏗️ Architecture](#️-architecture)
+- [🗄️ Database Schema](#️-database-schema)
+- [📊 Usage Example](#-usage-example)
+- [🔒 Security](#-security)
+- [📚 Resources](#-resources)
+- [📄 License](#-license)
+- [📞 Contact & Support](#-contact--support)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [⭐ Show Your Support](#-show-your-support)
 
 ---
 
@@ -120,7 +128,7 @@ psql --version # PostgreSQL 12+
 ## ⚙️ Installation (Windows 11 / macOS / Linux)
 
 ### 1. Clone or Create Project
-git clone https://github.com/yourusername/trading-platform.git
+git clone https://github.com/Ayushsingh299/Stock-Trading-Platform.git 
 cd trading-platform
 
 ### 2. Setup PostgreSQL Database
@@ -316,17 +324,17 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 - **Author:** Ayush Singh  
 - **Email:** ayushsingh.dev@gmail.com  
-- **GitHub:** [@AyushSingh](https://github.com/AyushSingh)  
+- **GitHub:** [@Ayushsingh299](https://github.com/Ayushsingh299)  
 - **LinkedIn:** [Ayush Singh](https://linkedin.com/in/ayushsingh)  
 - **Portfolio:** https://ayushsingh.dev  
 
 **Found a bug?**  
 👉 Report it here:  
-https://github.com/AyushSingh/trading-platform/issues/new  
+https://github.com/Ayushsingh299/Stock-Trading-Platform/issues/new  
 
 **Need help or feature request?**  
 👉 Start a discussion:  
-https://github.com/AyushSingh/trading-platform/discussions  
+https://github.com/Ayushsingh299/Stock-Trading-Platform/discussions  
 
 ---
 
@@ -344,13 +352,19 @@ https://github.com/AyushSingh/trading-platform/discussions
 
 If this project helped you, please give it a ⭐ on GitHub:
 
-👉 https://github.com/AyushSingh/trading-platform  
+👉 https://github.com/Ayushsingh299/Stock-Trading-Platform  
 
 ---
 
 <div align="center">
 
-💙 **Built with love using React, Node.js & PostgreSQL**
+🚀 **Proudly built using React, Node.js & PostgreSQL**
+
+[![GitHub Stars](https://img.shields.io/github/stars/Ayushsingh299/Stock-Trading-Platform?style=social)](https://github.com/Ayushsingh299/Stock-Trading-Platform/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/Ayushsingh299/Stock-Trading-Platform?style=social)](https://github.com/Ayushsingh299/Stock-Trading-Platform/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/Ayushsingh299/Stock-Trading-Platform)](https://github.com/Ayushsingh299/Stock-Trading-Platform/issues)
+
+</div>
 
 [![GitHub Stars](https://img.shields.io/github/stars/AyushSingh/trading-platform?style=social)](https://github.com/AyushSingh/trading-platform/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/AyushSingh/trading-platform?style=social)](https://github.com/AyushSingh/trading-platform/network/members)
