@@ -33,7 +33,7 @@
 
 ## 🎯 Overview
 
-**ProTrade** is a full-stack web application for learning stock trading mechanics with a realistic simulator. Built with production-grade architecture using Node.js, React, and PostgreSQL with enterprise security protocols (JWT, Bcrypt, CORS).
+**Stock Trading Platform** is a full-stack web application for learning stock trading mechanics with a realistic simulator. Built with production-grade architecture using Node.js, React, and PostgreSQL with enterprise security protocols (JWT, Bcrypt, CORS).
 
 **Use Cases:**
 - Learn full-stack development with real-world application
